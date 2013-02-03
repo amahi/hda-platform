@@ -15,9 +15,9 @@ deb: update-header dist
 	(cd release/hda-platform-$(VERSION)/debian && debuild -us -uc && debuild -S -us -uc)
 
 dist: clean
-	(cd html/tmp/cache/ && rm -rf *)
+	(mkdir -p html/tmp/cache && cd html/tmp/cache/ && rm -rf *)
 	(mkdir -p release && cd release && mkdir -p hda-platform-$(VERSION))
-	(cd html/log && echo -n > production.log && echo -n > development.log && echo -n > test.log)
+	(mkdir -p html/log && cd html/log && echo -n > production.log && echo -n > development.log && echo -n > test.log)
 	rsync -a debian pdc hda-usermap hda-gems-install hda-platform.spec hda-create-db-and-user html fonts \
 		hda-refresh-shares hda-update-webapps webapps hda-diskmount amahi-download \
 		hda-add-apache-sudoers release/hda-platform-$(VERSION)/
