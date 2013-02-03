@@ -1,3 +1,4 @@
 [submodule "html"]
 	path = html
 	url = git@github.com:amahi/platform.git
+	update = merge
