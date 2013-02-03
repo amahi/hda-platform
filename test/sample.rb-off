@@ -1,0 +1,194 @@
+# Amahi Home Server
+# Copyright (C) 2007-2009 Amahi Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License v3
+# (29 June 2007), as published in the COPYING file.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# file COPYING for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Amahi
+# team at http://www.amahi.org/ under "Contact Us."
+
+# sample router driver library for Netgear
+
+class Sample < RouterDriver
+
+	# Base URL for reaching the router - FIXME - this should be in the upper class
+	BASE = "http://router/"
+	# default admin user/password
+	DEFAULT_AUTH = { :user => 'admin', :password => 'admin' }
+
+	# models that this driver can handle
+	def self.name
+		"Some"
+	end
+	def self.models
+		["Example Router"]
+	end
+
+	def self.write_rule(rule)
+		url = BASE
+		net = Setting.get 'net'
+
+		if rule.kind =~ /_filter/
+			url += "formFilter?"
+		elsif rule.kind =~ /_forward/
+			url += "formPortFw?"
+		else
+			raise "error - write #{File.dirname(__FILE__)} cannot handle '#{rule.kind}'"
+		end
+		url += "enabled=ON&comment=#{url_encode rule.comment[0,20]}"
+
+		case rule.kind
+		when 'port_filter'
+			url += "&fromPort=#{range_lo(rule)}&toPort=#{range_hi(rule)}"
+			url += "&protocol=#{prot(rule.protocol)}"
+			url += "&addFilterPort=Apply%20Changes&submit-url=/portfilter.asp"
+		when 'ip_filter'
+			url += "&ip=#{net_ip(rule)}"
+			url += "&protocol=#{prot(rule.protocol)}"
+			url += "&addFilterIp=Apply%20Changes&submit-url=/ipfilter.asp"
+		when 'mac_filter'
+			url += "&mac=#{rule.mac.tr_s(':', '')}"
+			url += "&addFilterMac=Apply%20Changes&submit-url=/macfilter.asp"
+		when 'port_forward'
+			url += "&ip=#{net_ip(rule)}"
+			url += "&protocol=#{prot rule.protocol }"
+			url += "&fromPort=#{range_lo rule}&toPort=#{range_hi(rule)}"
+			url += "&addPortFw=Apply%20Changes&submit-url=/portfw.asp"
+		when 'url_filter'
+			url += "&url=#{url_encode rule.url}"
+			url += "&addFilterUrl=Apply%20Changes&submit-url=/urlfilter.asp"
+		else
+			raise "error - #{File.dirname(__FILE__)} cannot generate url for '#{rule.kind}'"
+		end
+		do_get(url)
+	end
+
+	def self.set_dmz(ip)
+		url = BASE
+		net = Setting.get 'net'
+
+		url += "formDMZ?"
+		puts "IPIPIP: '#{ip}'"
+		if ip and not ip.blank?
+			url += "enabled=ON&ip=#{ip}&save=Apply%20Changes&submit-url=/dmz.asp"
+		else
+			url += "enabled=OFF&ip=0.0.0.0&save=Apply%20Changes&submit-url=/dmz.asp"
+		end
+
+		do_get(url)
+	end
+
+	def self.set_global(kind, value)
+		url = BASE
+		net = Setting.get 'net'
+
+		if kind =~ /_filter/
+			url += "formFilter?"
+		elsif kind =~ /_forward/
+			url += "formPortFw?"
+		else
+			raise "error - write #{File.dirname(__FILE__)} cannot handle '#{kind}'"
+		end
+		if value == "1"
+			url += "enabled=ON"
+		else
+			url += "enabled=OFF"
+		end
+
+		case kind
+		when 'port_filter'
+			url += "&addFilterPort=Apply%20Changes&submit-url=/portfilter.asp"
+		when 'ip_filter'
+			url += "&addFilterIp=Apply%20Changes&submit-url=/ipfilter.asp"
+		when 'mac_filter'
+			url += "&addFilterMac=Apply%20Changes&submit-url=/macfilter.asp"
+		when 'port_forward'
+			url += "&addPortFw=Apply%20Changes&submit-url=/portfw.asp"
+		when 'url_filter'
+			url += "&addFilterUrl=Apply%20Changes&submit-url=/urlfilter.asp"
+		else
+			raise "error - #{File.dirname(__FILE__)} cannot generate url for '#{kind}'"
+		end
+		do_get(url)
+	end
+
+	# FIXME - this is broken!!! not working yet!
+	def self.delete_rule(rule)
+		url = BASE
+		net = Setting.get 'net'
+
+		if rule.kind =~ /_filter/
+			url += "formFilter?"
+		elsif rule.kind =~ /_forward/
+			url += "formPortFw?"
+		else
+			raise "error - delete - #{File.dirname(__FILE__)} cannot handle '#{rule.kind}'"
+		end
+		url += "select1=ON&comment=#{url_encode rule.comment[0,20]}"
+
+		case rule.kind
+		when 'port_filter'
+			url += "&fromPort=#{range_lo(rule)}&toPort=#{range_hi(rule)}"
+			url += "&protocol=#{prot(rule.protocol)}"
+			url += "&addFilterPort=Apply%20Changes&submit-url=/portfilter.asp"
+		when 'ip_filter'
+			url += "&ip=#{net_ip(rule)}"
+			url += "&protocol=#{prot(rule.protocol)}"
+			url += "&addFilterIp=Apply%20Changes&submit-url=/ipfilter.asp"
+		when 'mac_filter'
+			url += "&mac=#{rule.mac.tr_s(':', '')}"
+			url += "&addFilterMac=Apply%20Changes&submit-url=/macfilter.asp"
+		when 'port_forward'
+			url += "&ip=#{net_ip(rule)}"
+			url += "&protocol=#{prot rule.protocol }"
+			url += "&fromPort=#{range_lo rule}&toPort=#{range_hi(rule)}"
+			url += "&addPortFw=Apply%20Changes&submit-url=/portfw.asp"
+		when 'url_filter'
+			url += "&url=#{url_encode rule.url}"
+			url += "&addFilterUrl=Apply%20Changes&submit-url=/urlfilter.asp"
+		else
+			raise "error - #{File.dirname(__FILE__)} cannot generate url for '#{rule.kind}'"
+		end
+		do_get(url)
+	end
+
+	# enables DHCP
+	def self.dhcp_server_enable
+		form = { 'dhcpsvr' => '1', 'startIP4' => '30', 'endIP4' => '40', 'lease' => '3600' }
+		do_post(BASE + 'h_dhcp.cgi', form)
+	end
+
+	# disables DHCP
+	def self.dhcp_server_disable
+		form = { 'dhcpsvr' => '0', 'startIP4' => '30', 'endIP4' => '40', 'lease' => '3600' }
+		do_post(BASE + 'h_dhcp.cgi', form)
+	end
+private
+
+	def self.net_ip(rule)
+		Setting.get('net') + '.' + rule.ip
+	end
+
+	def self.prot(p)
+		p == "both" ? 0 : p == "tcp" ? 1 : 2
+	end
+
+	def self.range_lo(r)
+		r.range.split('-').first
+	end
+
+	def self.range_hi(r)
+		r.range.split('-').last
+	end
+
+end
+
+# Automatically load the router driver
+# RouterDriver.create "sample"

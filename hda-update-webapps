@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+
+# update webapps all in one shot
+
+sub main {
+	chdir "/var/hda/web-apps";
+	my @files = glob("*");
+	&command("mkdir -p amahi_tmp_name");
+	foreach $i (@files) {
+		next unless -d "$i";
+		print "processing dir: $i\n";
+		next if -e "$i/html";
+		print "upgrading $i\n";
+		&command("mkdir -p amahi_tmp_name/$i");
+		&command("mv $i amahi_tmp_name/$i/html");
+		&command("mkdir amahi_tmp_name/$i/logs");
+		&command("chown apache:users amahi_tmp_name/$i amahi_tmp_name/$i/logs");
+		&command("mv amahi_tmp_name/$i .");
+	}
+	&command("rmdir amahi_tmp_name");
+
+	chdir "/var/hda/platform/html";
+	&command("/var/hda/platform/html/script/runner 'Webapp.find(:all).each { |w| w.save! }'")
+}
+
+sub command {
+	my $cmd = shift;
+
+	print "\t$cmd\n";
+	system $cmd;
+}
+
+&main();

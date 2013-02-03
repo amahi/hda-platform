@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+#
+# Amahi Home Server
+# Copyright (C) 2007-2009 Amahi Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License v3
+# (29 June 2007), as published in the COPYING file.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# file COPYING for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Amahi
+# team at http://www.amahi.org/ under "Contact Us."
+
+require 'optparse'
+
+# FIXME-cpg: ewwww, parse this from the right place when bug # is
+# fixed
+DB_USER = 'root'
+DB_PASSWORD = 'hda'
+
+options = { :user => nil, :drop => nil }
+options[:user] = nil
+options[:drop] = nil
+options[:password] = nil
+dbname = nil
+
+script_name = File.basename($0)
+
+ARGV.clone.options do |opts|
+  opts.banner = "Usage: #{script_name} [options] dbname"
+
+  opts.separator ""
+
+  opts.on("-u", "--user=name", String,
+          "Specifies the user name to use.",
+          "Default: dbname@localhost") { |v| options[:user] = v }
+
+  opts.on("-d", "--drop",
+          "Drops the user and the DB.",
+          "Default: dbname@localhost") { |v| options[:drop] = true }
+
+  opts.on("-p", "--password=user", String,
+          "Sets a specific password for the user created.",
+          "Default: user name") { |v| options[:password] = v }
+
+  opts.separator ""
+
+  opts.on("-h", "--help",
+          "Show this help message.") { $stderr.puts opts; exit }
+
+  opts.order! { |o| dbname ||= o } rescue retry
+end
+
+ARGV.delete(dbname)
+
+if dbname.nil?
+	$stderr.puts "run '#{script_name} -h' for help."
+	exit 1
+end
+
+user = options[:user] || "#{dbname}"
+user_password = options[:password] || user
+host = "localhost"
+
+# DEBUG
+#db = STDOUT;
+db = open "| mysql --user #{DB_USER} -p#{DB_PASSWORD} 2>&1", "r+"
+
+if not options[:drop]
+	puts "#{script_name}: creating #{dbname}"
+	db.puts "create database if not exists `#{dbname}`;"
+	db.puts "create user '#{user}'@'#{host}' IDENTIFIED BY '#{user_password}';"
+	db.puts "grant all privileges on `#{dbname}`.* to '#{user}'@'#{host}';"
+	db.puts "quit"
+	db.flush
+	puts db.readlines unless db.eof?
+else
+	puts "#{script_name}: dropping #{dbname}"
+	db.puts "drop user '#{user}'@'#{host}';"
+	db.puts "drop database if exists `#{dbname}`;"
+	db.puts "quit"
+	db.flush
+	puts db.readlines unless db.eof?
+end
+db.close 

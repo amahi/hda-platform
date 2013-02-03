@@ -1,0 +1,14 @@
+var/hda/platform/logs
+etc/apache2/config.d
+var/hda/web-apps
+var/hda/domain-settings/netlogon
+var/hda/domain-settings/profiles
+var/lib/samba/drivers
+var/hda/platform
+usr/share/fonts/default/TrueType
+usr/share/hda-platform
+
+
+
+
+

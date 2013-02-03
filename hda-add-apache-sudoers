@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+#
+# insert all the apache capabilities in sudoers
+#
+
+require 'augeas'
+require 'fileutils'
+
+def do_basic_checks
+	ruid = Process.uid
+	euid = Process.euid
+
+	if euid != 0
+		puts "ERROR: this program must be run as \"root\". type \"su\" (to Switch User to root),"
+		puts "       then run it again.\n"
+		exit 1
+	end
+end
+
+def in_file?(file, string)
+	! File.open(file){|file| file.grep(/#{string}/) }.empty?
+end
+
+
+def do_sudoers
+        puts "Configuring sudoers file ... "
+        sudofile = '/etc/sudoers'
+
+        Augeas::open do |aug|
+                # Cmnd_Alias
+                unless in_file?(sudofile, "Cmnd_Alias HDAAPS")
+                        aug.set("/files/etc/sudoers/Cmnd_Alias[last()1]/alias/name", "HDAAPPS")
+                        aug.set("/files/etc/sudoers/Cmnd_Alias[last()]/alias/command[last()1]", "/var/hda/web-apps/*/elevated/")
+                        aug.set("/files/etc/sudoers/Cmnd_Alias[last()]/alias/command[last()1]", "/var/hda/apps/*/elevated/")
+                end
+
+                # Defaults
+                unless in_file?(sudofile, "Defaults:apache !requiretty")
+                        aug.set("/files/etc/sudoers/Defaults[last()1]/type", ":apache")
+                        aug.set("/files/etc/sudoers/Defaults[last()]/requiretty/negate", "")
+                end
+
+                # Users
+                unless in_file?(sudofile, "NOPASSWD : HDAAPPS")
+                        aug.set("/files/etc/sudoers/spec[last()1]/user", "apache")
+                        aug.set("/files/etc/sudoers/spec[last()]/host_group/host", "ALL")
+                        aug.set("/files/etc/sudoers/spec[last()]/host_group/command", "HDAAPPS")
+                        aug.set("/files/etc/sudoers/spec[last()]/host_group/command/runas_user", "root")
+                        aug.set("/files/etc/sudoers/spec[last()]/host_group/command/tag", "NOPASSWD")
+                end
+
+                unless aug.save
+                        puts "Failed to save changes to /etc/sudoers!"
+                end
+        end
+        puts "Configuring sudoers file done."
+end
+
+def main
+	do_basic_checks
+	do_sudoers
+end
+
+main

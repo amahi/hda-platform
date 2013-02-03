@@ -1,0 +1,91 @@
+#!/usr/bin/perl -w
+######################################################################
+# Author: Carlos Puchol <cpg at amahi dot org>
+# This code is property and copyright of Amahi Inc.
+# It's licensed under the GNU AGPL v3 License
+######################################################################
+
+use strict;
+use DBI();
+
+my $DATABASE_NAME = "hda_production";
+my $DATABASE_USER = "amahihda";
+my $DATABASE_PASSWORD = "AmahiHDARulez";
+
+my $dbh;
+
+sub usage {
+	printf "usage: hda-usermap [-h] \"User Name\"\n";
+	printf "\treturns the unix name of the corresponding long or short name entered\n";
+
+	exit (0);
+}
+
+sub get_db_user_name {
+
+	my $user = shift;
+	my $sth = $dbh->prepare("SELECT login FROM users WHERE name = '$user'");
+	$sth->execute();
+
+	my $login = '';
+	my @row = ();
+	if (@row = $sth->fetchrow_array) {
+		$login = $row[0];
+	}
+	$sth->finish();
+	return $login;
+}
+
+sub get_db_user_login {
+
+	my $user = shift;
+	my $sth = $dbh->prepare("SELECT login FROM users WHERE login = '$user'");
+	$sth->execute();
+
+	my $login = '';
+	my @row = ();
+	if (@row = $sth->fetchrow_array) {
+		$login = $row[0];
+	}
+	$sth->finish();
+	return $login;
+}
+
+
+sub get_username {
+	my $user = shift;
+	my $login = &get_db_user_name($user);
+
+	return $login unless $login eq '';
+	
+	return &get_db_user_login($user);
+}
+
+sub db_connect {
+	my $password = $DATABASE_PASSWORD;
+
+	# connect to the database.
+	$dbh = DBI->connect("DBI:mysql:database=$DATABASE_NAME;host=localhost",
+				$DATABASE_USER, $password, {RaiseError => 1})
+		or &logdie($DBI::errstr);
+}
+
+sub db_disconnect {
+	$dbh->disconnect();
+}
+
+sub main {
+
+	&usage() unless $#ARGV > -1;
+
+	my $user = $ARGV[0];
+
+	&db_connect ();
+	my $u = &get_username($user);
+	print "$u\n" unless $u eq '';
+	&db_disconnect ();
+}
+
+
+&main ();
+

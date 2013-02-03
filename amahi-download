@@ -1,0 +1,130 @@
+#! /usr/bin/ruby
+# Download files from Amahi mirrors, with integrity checking
+#
+#
+# FIXME: add support for mirrors in the future
+
+require 'optparse'
+require 'sha1'
+require 'pp'
+require 'fileutils'
+require 'uri'
+
+DEFAULT_URL = "http://dl.amahi.org"
+AMAHI_DOWNLOAD_CACHE = "/tmp/amahi-download-cache"
+
+class SHA1VerificationFailed < Exception; end
+
+def parse
+	options = {}
+
+	ARGV.clone.options do |opts|
+		script_name = File.basename($0)
+		opts.banner = "Usage: #{$0} [options] <filename|url> <sha1sum>"
+
+		#opts.separator ""
+		opts.on("-h", "--help",
+			"Show this help message.") { $stderr.puts opts; exit -1 }
+
+		opts.parse!
+
+		if ARGV.size < 2
+			$stderr.puts opts.banner
+			exit -1
+		end
+	end
+
+
+	ARGV
+end
+
+def download_once(url)
+	require 'net/http'
+
+	redirect_limit = 5
+	ret = ""
+
+	while redirect_limit > 0
+		u = URI.parse(url)
+		raise "HTTPS downloads are not supported yet, sorry" if u.scheme == "https"
+		req = Net::HTTP::Get.new(u.path)
+		response = Net::HTTP.start(u.host, u.port) { |http| http.request(req) }
+		return response.body unless response.kind_of?(Net::HTTPRedirection)
+		# it's a redirection
+		location = response['location']
+		old_url = url
+		url = location.nil? ? (response.body.match(/<a href=\"([^>]+)\">/i)[1]) : location
+		puts "NOTICE: redirected '#{old_url}' --> '#{url}' ..."
+		redirect_limit -= 1
+	end
+	# reached end of redirect limit]!
+	raise TooManyRedirects, "{url}"
+end
+
+def download(url)
+	attempts = 5
+	while attempts > 0
+		begin
+			return download_once(url)
+		rescue
+			sleep(6-attempts)
+			attempts -= 1
+		end
+	end
+	raise "Too many attempts failed to get #{url}!"
+end
+
+# download a file, but check in the cache first, also check the sha1
+def download_and_check_sha1(url, sha1)
+
+	FileUtils.mkdir_p AMAHI_DOWNLOAD_CACHE
+	raise SHA1VerificationFailed, "#{url}, sha1sum provided is empty!" unless sha1
+	cached_filename = File.join(AMAHI_DOWNLOAD_CACHE, sha1)
+	if File.exists?(cached_filename)
+		file = nil
+		open cached_filename do |f|
+			file = f.read
+		end
+		new_sha1 = Digest::SHA1.hexdigest(file)
+		if new_sha1 == sha1
+			puts "NOTE: file #{cached_filename} picked up from cache."
+			begin
+				FileUtils.touch cached_filename
+			rescue
+				# touch failed - shh
+			end
+			# return the file name, not the data
+			return cached_filename
+		else
+			puts "WARNING: file #{cached_filename} in cache was found to be corrupted!"
+		end
+	end
+
+	# download if the above fails, i.e. no cached file OR the sha1sum failed!
+	# FIXME: support for mirrors?
+	file = download(url)
+
+	new_sha1 = Digest::SHA1.hexdigest(file)
+	raise SHA1VerificationFailed, "#{url}, '#{new_sha1}' vs. '#{sha1}' " if new_sha1 != sha1
+
+	f = open(cached_filename, "w")
+	f.write file
+	f.close
+	puts "NOTE: file #{cached_filename} written in cache"
+
+	# return the file name, not the data
+	cached_filename
+end
+
+def main
+	(filename, sha1) = parse
+	url = filename
+	url = File.join(DEFAULT_URL, filename) unless filename =~ /^(http:|https:|ftp:)/
+	cached_filename = download_and_check_sha1(url, sha1)
+	local_filename = File.basename((URI::split url)[5])
+	# remove the link first, in case it's a stale link
+	FileUtils.rm_rf(local_filename)
+	File.symlink(cached_filename, local_filename)
+end
+
+main

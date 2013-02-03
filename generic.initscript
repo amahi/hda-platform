@@ -1,0 +1,90 @@
+#! /bin/sh
+#
+# HDA_SERVER:       Starts the ServerTweet Daemon
+#
+# chkconfig: 345 96 03
+# description: This is a daemon which runs on the servertweet daemon
+#
+# processname: transmission-daemon
+# config: 
+
+# Source function library.
+. /etc/init.d/functions
+
+DAEMON=HDA_SERVER
+PROGRAM_NAME="ServerTweet"
+PROGRAM_BIN=/var/hda/platform/apps/servertweet/$DAEMON
+PROGRAM_DIR=/var/hda/platform/html
+LOCKFILE=/var/lock/subsys/$DAEMON
+PIDFILE=/var/run/$DAEMON.pid
+DAEMON_USER=apache
+
+if [[ ! -e $PROGRAM_DIR ]]; then
+    mkdir -p $PROGRAM_DIR
+fi
+
+if [ "$1" == 'status' ]; then
+    test -x $PROGRAM_BIN || exit 4
+else 
+    test -x $PROGRAM_BIN || exit 5
+fi
+
+base=${0##*/}
+
+start() {
+    echo -n $"Starting $PROGRAM_NAME daemon... "
+    daemon --user $DAEMON_USER $PROGRAM_BIN -w $PROGRAM_DIR
+    RETVAL=$?
+    if [ $RETVAL = 0 ]; then
+        touch $LOCKFILE
+	pidof $DAEMON > $PIDFILE
+        success $"$base startup"
+    else
+        failure $"$base startup"
+    fi
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Shutting down $PROGRAM_NAME daemon: "
+    killproc $DAEMON
+    RETVAL=$?
+    [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
+    rm -f $LOCKFILE $PIDFILE
+    echo
+    return $RETVAL
+}
+
+restart() {
+    stop
+    start
+}
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status $DAEMON
+    RETVAL=$?
+    ;;
+  restart)
+    restart
+    ;;
+  condrestart)
+    [ ! -f $lockfile ] || restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|status|restart}"
+    exit 2
+        ;;
+esac
+
+exit $RETVAL

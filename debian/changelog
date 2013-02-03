@@ -1,0 +1,233 @@
+hda-platform (6.2.1) precise; urgency=low
+
+  * release DHCP lease path fix
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Sat, 27 Oct 2012 22:42:59 -0700
+
+hda-platform (6.2.0) precise; urgency=low
+
+  * official 6.2 release
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Fri, 28 Sep 2012 04:04:50 -0500
+
+hda-platform (6.1.38) precise; urgency=low
+
+  * fixes to the Debug > Logs area for ubuntu
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 27 Sep 2012 20:55:49 -0500
+
+hda-platform (6.1.37) precise; urgency=low
+
+  * ensure no system users can be created (bug #871)
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 27 Sep 2012 17:33:39 -0500
+
+hda-platform (6.1.36) precise; urgency=low
+
+  * fix share creation permissions
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Mon, 24 Sep 2012 16:04:14 -0700
+
+hda-platform (6.1.35) precise; urgency=low
+
+  * bump for testing upgrade
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Sun, 23 Sep 2012 18:37:47 -0700
+
+hda-platform (6.1.34) precise; urgency=low
+
+  *  further bump in version for release
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Sun, 23 Sep 2012 04:47:14 -0700
+
+hda-platform (6.1.31) precise; urgency=low
+
+  * update to fix for release with fixes for messed permissions in
+    updates in #927
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Sun, 23 Sep 2012 04:17:21 -0700
+
+hda-platform (6.1.34) precise; urgency=low
+
+  * force bash as a shell, for sanity
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Mon, 06 Aug 2012 16:26:57 -0700
+
+hda-platform (6.1.33) precise; urgency=low
+
+  * first admin script fixed, pass env variable for first-admin user
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Mon, 06 Aug 2012 15:44:42 -0700
+
+hda-platform (6.1.32) quantal; urgency=low
+
+  * fix path to leases file
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 04 Jul 2012 13:20:04 -0700
+
+hda-platform (6.1.31) quantal; urgency=low
+
+  * new look for release
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Mon, 02 Jul 2012 16:45:07 -0700
+
+
+hda-platform (6.1.30) quantal; urgency=low
+
+  * update theme for release
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Fri, 29 Jun 2012 19:10:36 -0700
+
+hda-platform (6.1.29-1) unstable; urgency=low
+
+  * parameterize mysql service name
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Fri, 22 Jun 2012 02:44:32 +0800
+
+hda-platform (6.1.28-1) unstable; urgency=low
+
+  * more platform-independent watchdog fixes
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 21 Jun 2012 23:55:32 +0800
+
+hda-platform (6.1.27-1) unstable; urgency=low
+
+  * typo in server.rb causing trouble
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 21 Jun 2012 13:55:32 +0800
+
+hda-platform (6.1.26-1) unstable; urgency=low
+
+  * more monit fixes
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 20 Jun 2012 13:55:32 +0800
+
+hda-platform (6.1.25-1) unstable; urgency=low
+
+  * make monit configuration be platform independent
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 20 Jun 2012 05:16:32 +0800
+
+hda-platform (6.1.24-1) unstable; urgency=low
+
+  * switch share folders to be with capital names
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Tue, 19 Jun 2012 14:16:32 +0800
+
+hda-platform (6.1.23-1) unstable; urgency=low
+
+  * add initial support for upstart
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Sun, 03 Jun 2012 16:16:32 +0800
+
+hda-platform (6.1.22-1) unstable; urgency=low
+
+  * fix typo
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 31 May 2012 17:16:32 +0800
+
+hda-platform (6.1.21-1) unstable; urgency=low
+
+  * replace . with : in chown cmd, this is the preferred syntax
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Thu, 31 May 2012 15:53:32 +0800
+
+hda-platform (6.1.20-1) unstable; urgency=low
+
+  * change dns name to named - blerg, what a hack
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 30 May 2012 19:53:32 +0800
+
+hda-platform (6.1.19-1) unstable; urgency=low
+
+  * fix bug in pid file detection and add secondary pgrep fallback for pid checking
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 30 May 2012 19:38:32 +0800
+
+hda-platform (6.1.18-1) unstable; urgency=low
+
+  * bring back pgrep fallback for pid checking
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 30 May 2012 18:24:32 +0800
+
+hda-platform (6.1.17-1) unstable; urgency=low
+
+  * Updated to revision 6.1.17 to pick up DHCP PID changes for ubuntu
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Wed, 30 May 2012 02:11:06 +0800
+
+hda-platform (6.1.16-1) unstable; urgency=low
+
+  * Updated to revision 6.1.16
+
+ -- Carlos Puchol <cpg+git@amahi.org>  Tue, 29 May 2012 18:11:06 +0800
+
+hda-platform (6.1.15-1) unstable; urgency=low
+
+  * Updated to revision 6.1.15
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Fri, 30 Dec 2011 11:00:00 +0200
+
+hda-platform (6.1.5-1) unstable; urgency=low
+
+  * Updated to revision 6.1.5
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Wed, 13 Sep 2011 22:00:00 +0200
+
+hda-platform (6.1.1-1) unstable; urgency=low
+
+  * Updated to revision 6.1.1
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Wed, 18 May 2011 22:00:00 +0200
+
+hda-platform (6.1.0-1) unstable; urgency=low
+
+  * Updated to revision 6.1.0
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Wed, 20 April 2011 21:30:00 +0200
+
+hda-platform (6.0.10-1) unstable; urgency=low
+
+  * Updated to revision 6.0.10
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sat, 02 April 2011 11:40:00 +0200
+
+hda-platform (6.0.8-1) unstable; urgency=low
+
+  * Updated to revision 6.0.8
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sat, 02 April 2011 10:10:00 +0200
+
+hda-platform (6.0.2-1) unstable; urgency=low
+
+  * Updated to revision 6.0.2
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sat, 26 Mar 2011 14:10:00 +0100
+
+hda-platform (6.0.1-1) unstable; urgency=low
+
+  * Updated to revision 6.0.1
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sun, 20 Mar 2011 16:12:56 +0100
+
+hda-platform (5.2) karmic; urgency=low
+
+  * Updated to revision 5.2
+  * Updated version in changelog so you do not get a .orig error message on make deb
+  * Updated makefile to run debuild with -us -uc command to disable package signing. 
+  * Updated makefile to target karmic 
+  * Changed control to reflect Amahi Developers as package maintainer. 
+
+ -- Kyle Law (Anzenketh)  <tuxmaster@geekstogo.com>  Fri, 19 Mar 2010 00:32:56 -0600
+
+hda-platform (3.4-1) unstable; urgency=low
+
+  * Updated to revision 3.4.
+
+ -- Praveen Kumar <praveen@kumar.in>  Sat, 01 Aug 2009 14:50:22 -0700
+
+hda-platform (2.6-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Praveen Kumar <praveen@kumar.in>  Sat, 13 Jun 2009 15:23:31 -0700

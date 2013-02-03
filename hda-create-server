@@ -1,0 +1,162 @@
+#!/usr/bin/env ruby
+#
+# Amahi Home Server
+# Copyright (C) 2007-2009 Amahi Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License v3
+# (29 June 2007), as published in the COPYING file.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# file COPYING for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Amahi
+# team at http://www.amahi.org/ under "Contact Us."
+
+require 'optparse'
+require 'pp'
+
+SCRIPT_NAME = File.basename($0)
+
+def initscript_file(name, visible_name, user = "apache")
+		file = ["#! /bin/sh",
+			"#",
+			"# #{name}:       Starts the #{visible_name} Daemon",
+			"#",
+			"# chkconfig: 345 96 03",
+			"# description: This is the #{name} daemon, which runs on the amahi server",
+			"#",
+			"# processname: #{name}",
+			"# config: ",
+			"",
+			"# Source function library.",
+			". /etc/init.d/functions",
+			"",
+			"DAEMON=#{name}",
+			"PROGRAM_NAME=\"#{visible_name}\"",
+			"PROGRAM_DIR=#{Dir.pwd}",
+			"PROGRAM_BIN=$PROGRAM_DIR/server/$DAEMON",
+			"LOCKFILE=/var/lock/subsys/$DAEMON",
+			"PIDFILE=/var/run/$DAEMON.pid",
+			"DAEMON_USER=#{user}",
+			"",
+			"if [[ ! -e $PROGRAM_DIR ]]; then",
+			"    mkdir -p $PROGRAM_DIR",
+			"fi",
+			"",
+			"if [ \"$1\" == 'status' ]; then",
+			"    test -x $PROGRAM_BIN || exit 4",
+			"else ",
+			"    test -x $PROGRAM_BIN || exit 5",
+			"fi",
+			"",
+			"base=${0##*/}",
+			"",
+			"start() {",
+			"    echo -n $\"Starting $PROGRAM_NAME daemon... \"",
+			"    daemon --user $DAEMON_USER $PROGRAM_BIN",
+			"    RETVAL=$?",
+			"    if [ $RETVAL = 0 ]; then",
+			"        touch $LOCKFILE",
+			"        pidof $DAEMON > $PIDFILE",
+			"        success $\"$base startup\"",
+			"    else",
+			"        failure $\"$base startup\"",
+			"    fi",
+			"    echo",
+			"    return $RETVAL",
+			"}",
+			"",
+			"stop() {",
+			"    echo -n $\"Shutting down $PROGRAM_NAME daemon: \"",
+			"    killproc $DAEMON",
+			"    RETVAL=$?",
+			"    [ $RETVAL = 0 ] && success $\"$base shutdown\" || failure $\"$base shutdown\"",
+			"    rm -f $LOCKFILE $PIDFILE",
+			"    echo",
+			"    return $RETVAL",
+			"}",
+			"",
+			"restart() {",
+			"    stop",
+			"    start",
+			"}",
+			"",
+			"RETVAL=0",
+			"",
+			"# See how we were called.",
+			"case \"$1\" in",
+			"  start)",
+			"    start",
+			"    ;;",
+			"  stop)",
+			"    stop",
+			"    ;;",
+			"  status)",
+			"    status $DAEMON",
+			"    RETVAL=$?",
+			"    ;;",
+			"  restart)",
+			"    restart",
+			"    ;;",
+			"  condrestart)",
+			"    [ ! -f $lockfile ] || restart",
+			"    ;;",
+			"  *)",
+			"    echo $\"Usage: $0 {start|stop|status|restart}\"",
+			"    exit 2",
+			"        ;;",
+			"esac",
+			"",
+			"exit $RETVAL",
+			"" ]
+	file.join "\n"
+end
+
+class OptParser
+
+	def self.parse(args)
+		options = { }
+		options[:visible_name] = nil
+		options[:service_name] = nil
+
+		opts = OptionParser.new do |opts|
+			opts.banner = "Usage: #{SCRIPT_NAME} [options] name"
+
+			opts.separator ""
+
+			opts.on("-n", "--name ServerName", "Name of the server is ServerName.") do |lib|
+				options[:visible_name] = lib
+				options[:service_name] ||= lib.downcase
+			end
+
+			opts.on("-s", "--service servicename", "Name of the service is 'servicename'.") do |lib|
+				options[:service_name] = lib
+			end
+
+			opts.separator ""
+
+			opts.on("-h", "--help",
+				"Show this help message.") { $stderr.puts opts; exit }
+
+		end
+		opts.parse!(args)
+		options
+	end
+end
+
+options = OptParser.parse(ARGV)
+
+pp options
+
+puts initscript_file("adito", "OpenVPN ALS")
+
+if options[:visible_name].nil?
+	$stderr.puts "error: cannot parse arguments. please run '#{SCRIPT_NAME} -h' for help."
+	exit 1
+end
+
+exit

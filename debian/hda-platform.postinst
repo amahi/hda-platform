@@ -1,0 +1,160 @@
+#!/bin/sh
+# -*- shell-script -*-
+# postinst script for hda-platform
+#
+# see: dh_installdeb(1)
+
+set -e
+# NOTE - this must mirrorr what is in the hda-platform.spec (in ../)
+export schema_version=20110120223420
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    configure)
+        if [ -z "$2" ]; then
+            echo "Deploying HDA platform"
+
+            if [ -e /var/cache/hda-ctl.cache ]; then
+                    if grep -q yes /var/cache/hda-ctl.cache ; then
+                            # FIXME - ugh - this gem install was inserted in 2/10 and can be
+                            # removed once the installer and dependencies are all clear
+                            (hda-install-gem rails 2.3.4; \
+                            cd /var/hda/platform/html && rake db:migrate RAILS_ENV=production VERSION=${schema_version}; \
+                            ./script/install-servers; \
+                            touch /var/hda/platform/html/tmp/restart.txt || true ) >> /var/log/amahi-platform-migration.log 2>&1
+                            (rm -rf /etc/httpd/conf.d/welcome.conf > /dev/null 2>&1) || true
+                    fi
+            fi
+    
+            # if /etc/ddclient does not exist the installer will try to start an interaction with 
+            # the user. but this is not possible with a web based install, so create an empty file
+            if [ ! -e /etc/ddclient.conf ]; then
+                    touch /etc/ddclient.conf
+            fi
+
+            # ubuntu has /etc/dhcp3, debian has /etc/dhcp; this adds a symlink
+            # if the file or link does not exist
+            if [ ! -e /etc/dhcp ]; then
+                    if [ ! -h /etc/dhcp ]; then
+                            ln -s /etc/dhcp3 /etc/dhcp
+                    fi
+            fi
+
+            if [ ! -e /sbin/insserv ]; then
+                    ln -s /usr/lib/insserv/insserv /sbin/insserv
+            fi
+
+            if [ ! -h /var/named ]; then
+                    ln -s /var/lib/bind /var/named
+            fi
+
+            # /var/named/data does not exist initially; create it here if needed
+            if [ ! -d /var/named/data ]; then
+                    mkdir /var/named/data
+                    chown bind:bind /var/named/data
+            fi
+
+            # /var/named/dynamic does not exist initially; create it here if needed
+            if [ ! -d /var/named/dynamic ]; then
+                    mkdir /var/named/dynamic
+                    chown bind:bind /var/named/dynamic
+            fi
+
+            grep -q -w apache /etc/passwd || adduser --disabled-login --system --group apache || true
+            # give apache the same id as www-data
+            usermod -o -u `id -u www-data` apache
+
+            # /etc/httpd/conf.d does not exist initially; create it here if needed
+            if [ ! -d /etc/httpd/conf.d ]; then
+                    mkdir -p /etc/httpd/conf.d
+            fi
+
+            # files on ubuntu are from www-data, change to apache for compatibility
+            chown apache:apache /etc/httpd/conf.d
+
+            mkdir -p /var/hda/apps
+            mkdir -p /var/hda/web-apps
+            mkdir -p /var/hda/dbs
+            mkdir -p /var/hda/drives
+            mkdir -p /var/hda/shares
+            mkdir -p /var/hda/domain-settings
+            mkdir -p /var/hda/elevated
+            mkdir -p /var/hda/platform/html/log
+            touch /var/hda/platform/html/log/production.log
+            touch /var/hda/platform/html/log/development.log
+            mkdir -p /var/hda/domain-settings/netlogon
+            mkdir -p /var/hda/domain-settings/profiles
+            chown -R apache:apache /var/hda/
+            chmod -R 755 /var/hda/
+            chown apache:users /var/hda/domain-settings/netlogon
+            chmod 775 /var/hda/domain-settings/netlogon
+            chown apache:users /var/hda/domain-settings/profiles
+            chmod 775 /var/hda/domain-settings/profiles
+            chown root:root /var/hda/domain-settings/netlogon/logon.bat
+            chmod 644 /var/hda/domain-settings/netlogon/logon.bat
+            chmod 600 /var/hda/web-apps/htpasswd
+            chmod 666 /var/hda/platform/html/log/production.log
+            chmod 666 /var/hda/platform/html/log/development.log
+            chown -R 1000:users /var/hda/files
+
+            grep -q hda-ctl /etc/apache2/apache2.conf || echo "Include /usr/share/hda-ctl/httpd/" >> /etc/apache2/apache2.conf
+            # run apache as apache.users not as www-data.www-data
+            sed -i -e "s/^export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=apache/" /etc/apache2/envvars
+            sed -i -e "s/^export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=users/" /etc/apache2/envvars
+            # next line is for debian and is a no-op in ubuntu
+            sed -i -e "s/^Include conf.d/Include \/etc\/httpd\/conf.d/ " /etc/apache2/apache2.conf
+            # next line is for ubuntu and is a no-op in debian
+            sed -i -e "s/^Include \/etc\/apache2\/conf.d/Include \/etc\/httpd\/conf.d/ " /etc/apache2/apache2.conf
+            # enable apache modules
+            a2enmod "*"
+
+            # fix sudoers
+            echo "User_Alias      HDAUSER = www-data
+            Cmnd_Alias      HDAWEBAPPS = /var/hda/web-apps/*/elevated/,/var/hda/apps/*/elevated/,/var/hda/elevated
+            Defaults:HDAUSER       !requiretty
+            HDAUSER         ALL = NOPASSWD: HDAWEBAPPS" > /etc/sudoers.d/amahi;
+                    chmod 0440 /etc/sudoers.d/amahi
+        fi
+
+        # stuff that always has to be done
+
+        chmod 644 /var/log/syslog;
+
+        (service hda-ctl restart || true) > /dev/null 2>&1
+        (service apache2 reload || true) > /dev/null 2>&1
+        # this line is for debian, service samba does not exist for ubuntu
+        (service samba reload || true) > /dev/null 2>&1
+        # these two lines are for ubuntu, services smbd and nmbd do not exist for debian
+        (service smbd reload || true) > /dev/null 2>&1
+        (service nmbd reload || true) > /dev/null 2>&1
+  
+        sed -i -e 's/^RUN_DAEMON="false"/RUN_DAEMON="true"/' /etc/default/hddtemp
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0

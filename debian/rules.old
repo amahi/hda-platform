@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep  
+	dh_installdirs
+	dh_install
+
+	# FIXME (praveen, 2009-06-13): .gitignore shouldn't be present
+	# in the distribution tarball.
+	find . -name .gitignore -exec rm '{}' +
+
+	touch $(CURDIR)/debian/hda-platform/var/hda/web-apps/htpasswd
+
+# Build architecture-independent files here.
+binary-indep: install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch:
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
