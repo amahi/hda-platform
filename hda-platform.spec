@@ -114,13 +114,14 @@ fi
 %attr(755, apache, apache) /var/hda/drives
 %attr(755, apache, apache) /var/hda/shares
 %attr(755, apache, apache) /var/hda/elevated
+%attr(755, apache, apache) /var/hda/web-apps
+%attr(644, apache, apache) /var/hda/web-apps/htpasswd
 %attr(644, root, root) /var/hda/domain-settings/netlogon/logon.bat
 %attr(775, apache, users) /var/hda/domain-settings/profiles
 /var/lib/samba/drivers
 %{_sbindir}/*
 %{_bindir}/*
 /usr/share/fonts/default/TrueType/*
-/var/hda/web-apps/htpasswd
 %{_datadir}/%{name}
 %config(noreplace) /var/hda/platform/html/config/*.yml
 %config(noreplace) /var/hda/platform/html/log/*.log
