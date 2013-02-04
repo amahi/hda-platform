@@ -5,7 +5,7 @@
 # FIXME: add support for mirrors in the future
 
 require 'optparse'
-require 'sha1'
+require 'digest'
 require 'pp'
 require 'fileutils'
 require 'uri'
