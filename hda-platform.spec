@@ -47,6 +47,7 @@ hda-platform is the Amahi web platform.
 %{__mkdir} -p %{buildroot}/var/hda/domain-settings/netlogon
 %{__mkdir} -p %{buildroot}/var/hda/domain-settings/profiles
 %{__mkdir} -p %{buildroot}/var/lib/samba/drivers
+%{__mkdir} -p %{buildroot}/var/hda/tmp
 %{__cp} -a html %{buildroot}/var/hda/platform/
 %{__rm} -rf %{buildroot}/var/hda/platform/html/TODO.txt
 %{__rm} -rf %{buildroot}/var/hda/platform/html/doc
@@ -116,6 +117,7 @@ fi
 %attr(755, apache, apache) /var/hda/elevated
 %attr(755, apache, apache) /var/hda/web-apps
 %attr(644, apache, apache) /var/hda/web-apps/htpasswd
+%attr(775, apache, users) /var/hda/tmp
 %attr(644, root, root) /var/hda/domain-settings/netlogon/logon.bat
 %attr(775, apache, users) /var/hda/domain-settings/profiles
 /var/lib/samba/drivers
