@@ -14,7 +14,10 @@ deb: update-header dist
 	(cd release && tar -zxf hda-platform_$(VERSION).orig.tar.gz)
 	(cd release/hda-platform-$(VERSION)/debian && debuild -us -uc && debuild -S -us -uc)
 
-dist: clean
+bundle:
+	(cd html && make bundle)
+
+dist: bundle clean
 	(mkdir -p html/tmp/cache && cd html/tmp/cache/ && rm -rf *)
 	(mkdir -p release && cd release && mkdir -p hda-platform-$(VERSION))
 	(mkdir -p html/log && cd html/log && echo -n > production.log && echo -n > development.log && echo -n > test.log)
@@ -35,4 +38,8 @@ clean:
 	(cd html/vendor/bundle/ruby/1.9.1/gems/unicorn-* && \
 	find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
 	xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
+
+# separate make target to install what's needed rpm-wise to build the dist
+rpm-devel-deps:
+	yum -y install ruby-devel gcc-c++ libxml2-devel libxslt-devel rubygem-bundler mysql-devel sqlite-devel
 

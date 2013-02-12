@@ -21,7 +21,7 @@ Requires: httpd hddtemp patch mysql-server
 #Requires: hda-greyhole >= 0.7.5
 Requires: tar unzip bzip2 wol
 Requires: rubygem-passenger rubygem-passenger-native mod_passenger
-BuildRequires: ruby-devel
+BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mysql-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %define debug_package %{nil}
