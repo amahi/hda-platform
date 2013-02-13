@@ -1,12 +1,11 @@
 VERSION=6.2.1
-ARCH=`uname -m`
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
 
 rpm: update-header dist
 	(cd release && rpmbuild -ta hda-platform-$(VERSION).tar.gz)
-	mv $(RPMBASE)/RPMS/$(ARCH)/hda-platform-$(VERSION)-*.$(ARCH).rpm release/
+	mv $(RPMBASE)/RPMS/*/hda-platform-$(VERSION)-*.rpm release/
 	mv $(RPMBASE)/SRPMS/hda-platform-$(VERSION)-*.src.rpm release/
 
 deb: update-header dist
@@ -31,7 +30,7 @@ update-header:
 	sed -i -e 's/^Version:\s*[0-9.]*\s*$$/Version: $(VERSION)/' hda-platform.spec
 
 install: rpm
-	(cd release && sudo rpm -Uvh hda-platform-$(VERSION)-*.$(ARCH).rpm)
+	(cd release && sudo rpm -Uvh hda-platform-$(VERSION)-*.rpm)
 
 clean:
 	find . -name '._*' -exec rm '{}' \;
