@@ -11,4 +11,5 @@ To get the latest submodule code,
 ```bash
 git submodule init
 git submodule update
+cd html && git pull && git checkout master
 ```
