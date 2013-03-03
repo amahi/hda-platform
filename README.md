@@ -11,5 +11,11 @@ To get the latest submodule code,
 ```bash
 git submodule init
 git submodule update
-cd html && git pull && git checkout master
+cd html && git pull origin master && git checkout master
+```
+
+To develop and build on an rpm-based system, you may need to get the proper tools and dependencies in place. You can use this make target:
+
+```bash
+make rpm-devel-deps
 ```

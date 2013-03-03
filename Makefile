@@ -40,5 +40,5 @@ clean:
 
 # separate make target to install what's needed rpm-wise to build the dist
 rpm-devel-deps:
-	yum -y install ruby-devel gcc-c++ libxml2-devel libxslt-devel rubygem-bundler mysql-devel sqlite-devel
+	sudo yum -y install ruby-devel gcc-c++ libxml2-devel libxslt-devel rubygem-bundler mariadb-devel sqlite-devel
 
