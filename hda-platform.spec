@@ -4,7 +4,7 @@
 
 Name:           hda-platform
 Version: 6.2.1
-Release:        1
+Release:        5
 
 Summary:        hda-platform is the Amahi web interface platform.
 
