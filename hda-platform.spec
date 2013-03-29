@@ -3,8 +3,8 @@
 %define ruby_abi          1.9.1
 
 Name:           hda-platform
-Version: 6.2.1
-Release:        5
+Version: 6.2.2
+Release:        7
 
 Summary:        hda-platform is the Amahi web interface platform.
 
@@ -19,7 +19,7 @@ Requires: ruby-mysql ruby-libs
 Requires: httpd hddtemp patch mysql-server
 #FIXME
 #Requires: hda-greyhole >= 0.7.5
-Requires: tar unzip bzip2 wol
+Requires: tar unzip bzip2 wol v8
 Requires: rubygem-passenger rubygem-passenger-native mod_passenger
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mysql-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
