@@ -1,4 +1,4 @@
-VERSION=6.2.5
+VERSION=6.2.6
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
