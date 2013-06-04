@@ -16,12 +16,12 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: hda-ctl >= 4.2.3
 Requires: ruby(abi) = %{ruby_abi}
 Requires: ruby-mysql ruby-libs
-Requires: httpd hddtemp patch mysql-server
+Requires: httpd hddtemp patch mariadb-server pmount
 #FIXME
 #Requires: hda-greyhole >= 0.7.5
 Requires: tar unzip bzip2 wol v8
 Requires: rubygem-passenger rubygem-passenger-native mod_passenger
-BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mysql-devel sqlite-devel
+BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %define debug_package %{nil}
