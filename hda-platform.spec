@@ -3,7 +3,7 @@
 %define ruby_abi          1.9.1
 
 Name:           hda-platform
-Version: 6.2.17
+Version: 6.2.19
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -93,7 +93,8 @@ fi
 touch /var/hda/platform/html/log/production.log
 touch /var/hda/platform/html/log/development.log
 
-/bin/chmod 644 /var/log/messages
+# for debugability down the road
+test ! -f /var/log/messages || /bin/chmod 644 /var/log/messages
 
 %preun
 
