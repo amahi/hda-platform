@@ -10,8 +10,10 @@ require 'pp'
 require 'fileutils'
 require 'uri'
 
+# NOTE: this location should be kept in sync at all times with the platform
+# at [platform]/lib/downloader.rb in production)
+AMAHI_DOWNLOAD_CACHE = "/var/hda/tmp/amahi-download-cache"
 DEFAULT_URL = "http://dl.amahi.org"
-AMAHI_DOWNLOAD_CACHE = "/tmp/amahi-download-cache"
 
 class SHA1VerificationFailed < Exception; end
 
