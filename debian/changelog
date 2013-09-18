@@ -1,3 +1,9 @@
+hda-platform (7.1.2) precise; urgency=low
+
+  * update to latest version
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Wed, 18 Sep 2013 21:00:00 +0200
+
 hda-platform (6.2.1) precise; urgency=low
 
   * release DHCP lease path fix
