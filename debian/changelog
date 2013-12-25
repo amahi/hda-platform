@@ -1,3 +1,9 @@
+hda-platform (7.1.4) precise; urgency=low
+
+  * update to latest version
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Wed, 25 Dec 2013 11:40:03 +0100
+
 hda-platform (7.1.2) precise; urgency=low
 
   * update to latest version

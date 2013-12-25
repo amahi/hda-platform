@@ -3,7 +3,7 @@ Section: web
 Priority: extra
 Maintainer: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
 Build-Depends: debhelper (>= 7.0.50)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: http://www.amahi.org/
 
 Package: hda-platform
