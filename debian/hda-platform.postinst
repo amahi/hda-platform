@@ -118,7 +118,7 @@ case "$1" in
             # next line is for ubuntu and is a no-op in debian
             sed -i -e "s/^Include \/etc\/apache2\/conf.d/Include \/etc\/httpd\/conf.d/ " /etc/apache2/apache2.conf
             # enable apache modules
-            a2enmod "*"
+            a2enmod php5 rewrite
 
             # fix sudoers
             echo "User_Alias      HDAUSER = www-data
