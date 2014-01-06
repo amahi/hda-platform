@@ -15,7 +15,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires: hda-ctl >= 4.2.3
 Requires: ruby(release) = %{rubyrelease}
-Requires: ruby-mysql ruby-libs
+Requires: ruby-mysql ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount
 #FIXME
 #Requires: hda-greyhole >= 0.7.5
