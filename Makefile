@@ -21,7 +21,7 @@ dist: bundle clean
 	(mkdir -p release && cd release && mkdir -p hda-platform-$(VERSION))
 	(mkdir -p html/log && cd html/log && echo -n > production.log && echo -n > development.log && echo -n > test.log)
 	rsync -a debian pdc hda-usermap hda-gems-install hda-platform.spec hda-create-db-and-user html fonts \
-		hda-refresh-shares hda-update-webapps webapps hda-diskmount amahi-download \
+		hda-refresh-shares webapps hda-diskmount amahi-download \
 		hda-add-apache-sudoers release/hda-platform-$(VERSION)/
 	(cd release && tar -czvf hda-platform-$(VERSION).tar.gz hda-platform-$(VERSION))
 	(cd release && rm -rf hda-platform-$(VERSION))

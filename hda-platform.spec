@@ -4,7 +4,7 @@
 
 Name:           hda-platform
 Version: 7.1.5
-Release:        1
+Release:        3
 
 Summary:        hda-platform is the Amahi web interface platform.
 
@@ -69,7 +69,6 @@ hda-platform is the Amahi web platform.
 %{__install} -m 755 -p hda-usermap %{buildroot}%{_datadir}/%{name}
 %{__mkdir} -p %{buildroot}%{_bindir}
 %{__install} -m 755 -p hda-refresh-shares %{buildroot}%{_bindir}
-%{__install} -m 755 -p hda-update-webapps %{buildroot}%{_bindir}
 %{__install} -m 755 -p hda-create-db-and-user %{buildroot}%{_bindir}
 %{__install} -m 755 -p amahi-download %{buildroot}%{_bindir}
 %{__mkdir} -p %{buildroot}/var/hda/web-apps/
