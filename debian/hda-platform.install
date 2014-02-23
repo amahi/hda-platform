@@ -8,6 +8,5 @@ hda-usermap			usr/share/hda-platform
 
 #Files to be created in the usr/bin directory
 hda-refresh-shares              usr/bin
-hda-update-webapps              usr/bin
 hda-create-db-and-user		usr/bin
 amahi-download			usr/bin

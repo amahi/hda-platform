@@ -56,22 +56,6 @@ case "$1" in
                     ln -s /usr/lib/insserv/insserv /sbin/insserv
             fi
 
-            if [ ! -h /var/named ]; then
-                    ln -s /var/lib/bind /var/named
-            fi
-
-            # /var/named/data does not exist initially; create it here if needed
-            if [ ! -d /var/named/data ]; then
-                    mkdir /var/named/data
-                    chown bind:bind /var/named/data
-            fi
-
-            # /var/named/dynamic does not exist initially; create it here if needed
-            if [ ! -d /var/named/dynamic ]; then
-                    mkdir /var/named/dynamic
-                    chown bind:bind /var/named/dynamic
-            fi
-
             grep -q -w apache /etc/passwd || adduser --disabled-login --system --group apache || true
             # give apache the same id as www-data
             usermod -o -u `id -u www-data` apache
@@ -107,18 +91,25 @@ case "$1" in
             chmod 600 /var/hda/web-apps/htpasswd
             chmod 666 /var/hda/platform/html/log/production.log
             chmod 666 /var/hda/platform/html/log/development.log
+            mkdir -p /var/hda/platform/html/tmp/cache/assets
+            chmod -R 777 /var/hda/platform/html/tmp/cache/
+            mkdir /var/hda/tmp
+            chmod 777 /var/hda/tmp
+
             chown -R 1000:users /var/hda/files
 
-            grep -q hda-ctl /etc/apache2/apache2.conf || echo "Include /usr/share/hda-ctl/httpd/" >> /etc/apache2/apache2.conf
+            grep -q "IncludeOptional /etc/httpd/conf.d/*.conf" /etc/apache2/apache2.conf || echo "IncludeOptional /etc/httpd/conf.d/*.conf" >> /etc/apache2/apache2.conf
             # run apache as apache.users not as www-data.www-data
             sed -i -e "s/^export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=apache/" /etc/apache2/envvars
             sed -i -e "s/^export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=users/" /etc/apache2/envvars
-            # next line is for debian and is a no-op in ubuntu
-            sed -i -e "s/^Include conf.d/Include \/etc\/httpd\/conf.d/ " /etc/apache2/apache2.conf
-            # next line is for ubuntu and is a no-op in debian
-            sed -i -e "s/^Include \/etc\/apache2\/conf.d/Include \/etc\/httpd\/conf.d/ " /etc/apache2/apache2.conf
+            # next line is needed for 13.10 might not be needed for 14.04
+            rm -f /etc/apache2/mods*/lua*
             # enable apache modules
             a2enmod php5 rewrite
+
+            # network manager stuff
+            sed -i -e "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf
+            sed -i -e "s/^[^#].*eth0.*$/#&/" /etc/network/interfaces
 
             # fix sudoers
             echo "User_Alias      HDAUSER = www-data
@@ -139,6 +130,7 @@ case "$1" in
         # these two lines are for ubuntu, services smbd and nmbd do not exist for debian
         (service smbd reload || true) > /dev/null 2>&1
         (service nmbd reload || true) > /dev/null 2>&1
+        (service dnsmasq restart || true) > /dev/null 2>&1
   
         sed -i -e 's/^RUN_DAEMON="false"/RUN_DAEMON="true"/' /etc/default/hddtemp
     ;;

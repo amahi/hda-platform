@@ -1,3 +1,9 @@
+hda-platform (7.1.5) saucy; urgency=low
+
+  * update to latest version
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sun, 23 Feb 2014 17:10:00 +0100
+
 hda-platform (7.1.4) precise; urgency=low
 
   * update to latest version
@@ -44,7 +50,7 @@ hda-platform (6.1.35) precise; urgency=low
 
   * bump for testing upgrade
 
- -- Carlos Puchol <cpg+git@amahi.org>  Sun, 23 Sep 2012 18:37:47 -0700
+ et - Carlos Puchol <cpg+git@amahi.org>  Sun, 23 Sep 2012 18:37:47 -0700
 
 hda-platform (6.1.34) precise; urgency=low
 
