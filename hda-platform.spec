@@ -24,6 +24,10 @@ Requires: rubygem-passenger rubygem-passenger-native mod_passenger
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
+# for some reason, python complains that there is a syntax error in libv8 
+# ./html/vendor/bundle/ruby/gems/libv8-3.16.14.3/vendor/v8/src/macros.py
+# in 32 bits only (!??!)
+%define __python /bin/true
 %define debug_package %{nil}
 
 %description
@@ -131,7 +135,7 @@ fi
 %attr(-, apache, apache) /var/hda/platform/logs/
 
 %changelog
-* Fri Jan 26 2013 carlos puchol
+* Sat Jan 26 2013 carlos puchol
 - cleanups, updates for fedora 18
-* Sun Mar 11 2009 carlos puchol
+* Wed Mar 11 2009 carlos puchol
 - major upgrades to the platform
