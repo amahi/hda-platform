@@ -1,4 +1,4 @@
-VERSION=7.1.6
+VERSION=7.1.19
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
@@ -43,6 +43,10 @@ clean:
 	(cd html/vendor/bundle/ruby/1.9.1/gems/unicorn-* && \
 	find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
 	xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
+
+# for a clean bundle, prior to release
+distclean:
+	        (cd html/vendor/bundle/ && rm -rf ruby)
 
 # separate make target to install what's needed rpm-wise to build the dist
 rpm-devel-deps:
