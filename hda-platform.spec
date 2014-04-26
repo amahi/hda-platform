@@ -1,9 +1,9 @@
 # NOTE: also update this in debian/hda-platform.postinst
-%define schema_version    20120803011600
+%define schema_version    20140419104547
 %define rubyrelease       2.0.0
 
 Name:           hda-platform
-Version: 7.2
+Version: 7.2.9
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -24,7 +24,7 @@ Requires: rubygem-passenger rubygem-passenger-native mod_passenger
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
-# for some reason, python complains that there is a syntax error in libv8 
+# for some reason, python complains that there is a syntax error in libv8
 # ./html/vendor/bundle/ruby/gems/libv8-3.16.14.3/vendor/v8/src/macros.py
 # in 32 bits only (!??!)
 %define __python /bin/true
@@ -87,8 +87,9 @@ if [[ -e /var/cache/hda-ctl.cache ]]; then
     if grep -q yes /var/cache/hda-ctl.cache ; then
         # FIXME - ugh - this gem install was inserted in 2/10 and can be
         # removed once the installer and dependencies are all clear
-        (cd /var/hda/platform/html && rake db:migrate RAILS_ENV=production VERSION=%{schema_version}; \
-        touch /var/hda/platform/html/tmp/restart.txt || true ) >> /var/log/amahi-platform-migration.log 2>&1 
+        (cd /var/hda/platform/html && bin/rake db:migrate RAILS_ENV=production VERSION=%{schema_version}; \
+        touch /var/hda/platform/html/tmp/restart.txt ||
+	chown apache:users /var/hda/platform/html/tmp/restart.txt || true ) >> /var/log/amahi-platform-migration.log 2>&1
         (/bin/rm -rf /etc/httpd/conf.d/{userdir,autoindex,welcome}.conf > /dev/null 2>&1) || true
     fi
 fi
