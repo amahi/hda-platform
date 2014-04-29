@@ -28,10 +28,7 @@ case "$1" in
 
             if [ -e /var/cache/hda-ctl.cache ]; then
                     if grep -q yes /var/cache/hda-ctl.cache ; then
-                            # FIXME - ugh - this gem install was inserted in 2/10 and can be
-                            # removed once the installer and dependencies are all clear
-                            (hda-install-gem rails 2.3.4; \
-                            cd /var/hda/platform/html && rake db:migrate RAILS_ENV=production VERSION=${schema_version}; \
+                            (cd /var/hda/platform/html && rake db:migrate RAILS_ENV=production VERSION=${schema_version}; \
                             ./script/install-servers; \
                             touch /var/hda/platform/html/tmp/restart.txt || true ) >> /var/log/amahi-platform-migration.log 2>&1
                             (rm -rf /etc/httpd/conf.d/welcome.conf > /dev/null 2>&1) || true
@@ -42,14 +39,6 @@ case "$1" in
             # the user. but this is not possible with a web based install, so create an empty file
             if [ ! -e /etc/ddclient.conf ]; then
                     touch /etc/ddclient.conf
-            fi
-
-            # ubuntu has /etc/dhcp3, debian has /etc/dhcp; this adds a symlink
-            # if the file or link does not exist
-            if [ ! -e /etc/dhcp ]; then
-                    if [ ! -h /etc/dhcp ]; then
-                            ln -s /etc/dhcp3 /etc/dhcp
-                    fi
             fi
 
             if [ ! -e /sbin/insserv ]; then
@@ -93,7 +82,7 @@ case "$1" in
             chmod 666 /var/hda/platform/html/log/development.log
             mkdir -p /var/hda/platform/html/tmp/cache/assets
             chmod -R 777 /var/hda/platform/html/tmp/cache/
-            mkdir /var/hda/tmp
+            mkdir -p /var/hda/tmp
             chmod 777 /var/hda/tmp
 
             chown -R 1000:users /var/hda/files

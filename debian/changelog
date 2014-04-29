@@ -1,3 +1,9 @@
+hda-platform (7.2.9) trusty; urgency=low
+
+  * update to latest version
+
+ -- Frans Meulenbroeks <fransmeulenbroeks@gmail.com>  Sat, 26 Feb 2014 09:40:00 +0100
+
 hda-platform (7.1.5) saucy; urgency=low
 
   * update to latest version

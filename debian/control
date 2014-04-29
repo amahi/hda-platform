@@ -3,12 +3,12 @@ Section: web
 Priority: extra
 Maintainer: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
 Build-Depends: debhelper (>= 7.0.50)
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: http://www.amahi.org/
 
 Package: hda-platform
 Architecture: all
-Depends: hda-ctl, apache2, libapache2-mod-fcgid, ruby, rake, libopenssl-ruby1.8, libldap-ruby1.8, libmysql-ruby1.8, libfcgi-ruby1.8,libyaml-ruby,libzlib-ruby,ruby-dev,rubygems,libgruff-ruby,libgd-ruby, rails, patch, hddtemp, ntpdate, ${misc:Depends}
+Depends: hda-ctl, apache2, libapache2-mod-fcgid, ruby, rake, ruby-rack-ssl, ruby-ldap, ruby-mysql, ruby-fcgi,ruby-safe-yaml,ruby-dev,ruby-gruff,ruby-gd, rails, patch, hddtemp, ntpdate, pastebinit, ${misc:Depends}
 Description: Amahi Home Digital Assistant web platform
  The Amahi Home Server is more than what you'd expect from a GNU/Linux
  home server. We call it "Home Digital Assistant" or HDA.  The Amahi
