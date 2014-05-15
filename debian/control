@@ -7,7 +7,7 @@ Standards-Version: 3.9.5
 Homepage: http://www.amahi.org/
 
 Package: hda-platform
-Architecture: all
+Architecture: any
 Depends: hda-ctl, apache2, libapache2-mod-fcgid, ruby, rake, ruby-rack-ssl, ruby-ldap, ruby-mysql, ruby-fcgi,ruby-safe-yaml,ruby-dev,ruby-gruff,ruby-gd, rails, patch, hddtemp, ntpdate, pastebinit, ${misc:Depends}
 Description: Amahi Home Digital Assistant web platform
  The Amahi Home Server is more than what you'd expect from a GNU/Linux
