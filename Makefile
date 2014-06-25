@@ -1,4 +1,4 @@
-VERSION=7.2.9
+VERSION=7.2.24
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
@@ -35,14 +35,14 @@ install: rpm
 clean:
 	find . -name '._*' -exec rm '{}' \;
 	# Fedora stores the gems in html/vendor/bundle/ruby/gems
-	(cd html/vendor/bundle/ruby/gems/unicorn-* && \
-	find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
-	xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
+	(cd html/vendor/bundle/ruby/ && \
+		find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
+		xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
 	# Ubuntu stores the gems in html/vendor/bundle/ruby/1.9.1/gems
 	# (where 1.9.1 is the ABI version)
-	(cd html/vendor/bundle/ruby/1.9.1/gems/unicorn-* && \
-	find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
-	xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
+	#(cd html/vendor/bundle/ruby/1.9.1/gems/unicorn-* && \
+	#find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
+	#xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
 
 # for a clean bundle, prior to release
 distclean:
