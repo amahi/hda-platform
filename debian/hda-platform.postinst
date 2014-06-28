@@ -6,7 +6,7 @@
 
 set -e
 # NOTE - this must mirrorr what is in the hda-platform.spec (in ../)
-export schema_version=20110120223420
+export schema_version=20140627195608
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>

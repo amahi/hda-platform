@@ -1,9 +1,9 @@
 # NOTE: also update this in debian/hda-platform.postinst
-%define schema_version    20140419104547
+%define schema_version    20140627195608
 %define rubyrelease       2.0.0
 
 Name:           hda-platform
-Version: 7.3.0
+Version: 7.3.2
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
