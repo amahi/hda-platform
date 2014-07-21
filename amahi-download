@@ -48,9 +48,9 @@ def download_once(url)
 
 	while redirect_limit > 0
 		u = URI.parse(url)
-		raise "HTTPS downloads are not supported yet, sorry" if u.scheme == "https"
 		req = Net::HTTP::Get.new(u.path)
-		response = Net::HTTP.start(u.host, u.port) { |http| http.request(req) }
+		ssl = if u.scheme == "https"
+		response = Net::HTTP.start(u.host, u.port, use_ssl: ssl) { |http| http.request(req) }
 		return response.body unless response.kind_of?(Net::HTTPRedirection)
 		# it's a redirection
 		location = response['location']
