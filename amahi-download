@@ -49,7 +49,7 @@ def download_once(url)
 	while redirect_limit > 0
 		u = URI.parse(url)
 		req = Net::HTTP::Get.new(u.path)
-		ssl = if u.scheme == "https"
+		ssl = u.scheme == "https"
 		response = Net::HTTP.start(u.host, u.port, use_ssl: ssl) { |http| http.request(req) }
 		return response.body unless response.kind_of?(Net::HTTPRedirection)
 		# it's a redirection
