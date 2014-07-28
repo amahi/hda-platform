@@ -3,7 +3,7 @@
 %define rubyrelease       2.0.0
 
 Name:           hda-platform
-Version: 7.3.2.12
+Version: 7.3.3
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
