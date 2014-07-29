@@ -3,7 +3,7 @@
 %define rubyrelease       2.0.0
 
 Name:           hda-platform
-Version: 7.3.3
+Version: 7.4.0
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -17,10 +17,9 @@ Requires: hda-ctl >= 5.3.0
 Requires: ruby(release) = %{rubyrelease}
 Requires: ruby-mysql ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount
-#FIXME
-#Requires: hda-greyhole >= 0.7.5
 Requires: tar unzip bzip2 wol v8
 Requires: rubygem-passenger rubygem-passenger-native mod_passenger
+Requires: amahi-anywhere
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
