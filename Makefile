@@ -1,4 +1,4 @@
-VERSION=7.4.0
+VERSION=7.5.1
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
