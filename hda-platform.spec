@@ -1,9 +1,9 @@
 # NOTE: also update this in debian/hda-platform.postinst
 %define schema_version    20140717200213
-%define rubyrelease       2.0.0
+%define rubyrelease       2.1.6
 
 Name:           hda-platform
-Version: 7.4.1
+Version: 7.9.7
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -15,7 +15,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires: hda-ctl >= 5.3.0
 Requires: ruby(release) = %{rubyrelease}
-Requires: ruby-mysql ruby-libs mlocate
+Requires: ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount
 Requires: tar unzip bzip2 wol v8
 Requires: rubygem-passenger rubygem-passenger-native mod_passenger
@@ -23,10 +23,6 @@ Requires: amahi-anywhere
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
-# for some reason, python complains that there is a syntax error in libv8
-# ./html/vendor/bundle/ruby/gems/libv8-3.16.14.3/vendor/v8/src/macros.py
-# in 32 bits only (!??!)
-%define __python /bin/true
 %define debug_package %{nil}
 
 %description
