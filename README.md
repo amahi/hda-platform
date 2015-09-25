@@ -19,3 +19,7 @@ To develop and build on an rpm-based system, you may need to get the proper tool
 ```bash
 make rpm-devel-deps
 ```
+To build the rpm, make sure you are using the system ruby in a system identical to the 
+```bash
+make disclean rpm
+```
