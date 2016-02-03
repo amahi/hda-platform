@@ -1,4 +1,4 @@
-VERSION=8.0.1
+VERSION=8.0.2
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
