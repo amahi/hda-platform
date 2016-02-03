@@ -9,13 +9,132 @@ require 'digest'
 require 'pp'
 require 'fileutils'
 require 'uri'
+require 'net/http'
+require 'digest/sha1'
 
 # NOTE: this location should be kept in sync at all times with the platform
 # at [platform]/lib/downloader.rb in production)
 AMAHI_DOWNLOAD_CACHE = "/var/hda/tmp/amahi-download-cache"
+HDA_TMP_DIR = '/var/hda/tmp'
 DEFAULT_URL = "http://dl.amahi.org"
 
-class SHA1VerificationFailed < Exception; end
+
+# utilities to manage a temporary cache of downloaded or generated files
+
+class TempCache
+
+	class << self
+		# expire files that have not been accessed in a while
+		def expire_unused_files
+			Dir.glob(File.join(HDA_TMP_DIR, "**/**")) do |f|
+				begin
+					if File.exists?(f) && File.atime(f) < 3.months.ago
+						FileUtils.rm_rf(f)
+					end
+				rescue
+					# ignore errors, because it's theoretically possible that
+					# there might be files in-flight and the exists? is true
+					# yet the atime fails, or even the rm
+				end
+			end
+		end
+
+		# return a unique name for creating a file
+		def unique_filename(base)
+			expire_unused_files
+			File.join(HDA_TMP_DIR, "#{base}-%d.%d" % [$$, rand(9999)])
+		end
+	end
+end
+
+class Downloader
+
+	HDA_DOWNLOAD_CACHE = File.join(HDA_TMP_DIR, "amahi-download-cache")
+	AMAHI_DOWNLOAD_MIRROR_SITE = 'http://mirror.amahi.org'
+
+	class SHA1VerificationFailed < Exception; end
+	class TooManyRedirects < Exception; end
+
+	# download a file, but check in the cache first, also
+	# check the sha1
+	def self.download_and_check_sha1(url, sha1)
+
+		raise SHA1VerificationFailed, "#{url}, sha1sum provided is empty!" unless sha1
+		TempCache.expire_unused_files
+		FileUtils.mkdir_p(HDA_DOWNLOAD_CACHE)
+		cached_filename = File.join(HDA_DOWNLOAD_CACHE, sha1)
+		if File.exists?(cached_filename)
+			file = IO.binread(cached_filename)
+			new_sha1 = Digest::SHA1.hexdigest(file)
+			if new_sha1 == sha1
+				puts "file #{cached_filename} picked up from cache."
+				FileUtils.touch cached_filename
+				# return the file name, not the data
+				return cached_filename
+			else
+				puts "WARNING: file #{cached_filename} in cache was found to be corrupted! Discarding it."
+			end
+		end
+
+		# download if the above fails, i.e. no cached file OR the sha1sum failed!
+		download(url, cached_filename, sha1)
+
+		# return the file name, not the data
+		cached_filename
+	end
+
+	private
+
+	def self.download_direct(url)
+
+		redirect_limit = 5
+
+		while redirect_limit > 0
+			u = URI.parse(url)
+			http = Net::HTTP.new(u.host, u.port)
+			http.use_ssl = (u.scheme == 'https')
+			request = Net::HTTP::Get.new(u.path, { 'accept-encoding' => '' })
+			response = http.start { |http| http.request(request) }
+			return response.body unless response.kind_of?(Net::HTTPRedirection)
+			# it's a redirection
+			location = response['location']
+			old_url = url
+			url = location.nil? ? (response.body.match(/<a href=\"([^>]+)\">/i)[1]) : location
+			puts "NOTICE: redirected '#{old_url}' --> '#{url}' ..."
+			redirect_limit -= 1
+		end
+		# reached end of redirect limit]!
+		raise TooManyRedirects, "#{url}"
+	end
+
+	# try to download from the original download site. if that fails,
+	# then try to download from amahi's mirror
+	def self.download(url, filename, sha1)
+		new_sha1 = "badbadsha1"
+
+		begin
+
+			file = download_direct(url)
+			open(filename, "wb") {|f| f.write file }
+			puts "file #{filename} written in cache"
+
+			new_sha1 = Digest::SHA1.hexdigest(file)
+		rescue => e
+			puts "WARNING: primary downloaded of #{url} barfed with exception \"#{e.inspect}\""
+		end
+
+		if new_sha1 != sha1
+			puts "WARNING: primary downloaded file #{filename} did not pass signature check - got #{new_sha1}, expected #{sha1}"
+			new_url = File.join(AMAHI_DOWNLOAD_MIRROR_SITE, sha1)
+			file = download_direct(new_url)
+			open(filename, "wb") { |f| f.write file }
+			puts "new file #{filename} from Amahi's mirror written in the cache"
+
+			new_sha1 = Digest::SHA1.hexdigest(file)
+			raise SHA1VerificationFailed, "#{new_url} (from original #{url}), '#{new_sha1}' vs. '#{sha1}' " if new_sha1 != sha1
+		end
+	end
+end
 
 def parse
 	options = {}
@@ -40,89 +159,11 @@ def parse
 	ARGV
 end
 
-def download_once(url)
-	require 'net/http'
-
-	redirect_limit = 5
-	ret = ""
-
-	while redirect_limit > 0
-		u = URI.parse(url)
-		req = Net::HTTP::Get.new(u.path)
-		ssl = u.scheme == "https"
-		response = Net::HTTP.start(u.host, u.port, use_ssl: ssl) { |http| http.request(req) }
-		return response.body unless response.kind_of?(Net::HTTPRedirection)
-		# it's a redirection
-		location = response['location']
-		old_url = url
-		url = location.nil? ? (response.body.match(/<a href=\"([^>]+)\">/i)[1]) : location
-		puts "NOTICE: redirected '#{old_url}' --> '#{url}' ..."
-		redirect_limit -= 1
-	end
-	# reached end of redirect limit]!
-	raise TooManyRedirects, "{url}"
-end
-
-def download(url)
-	attempts = 5
-	while attempts > 0
-		begin
-			return download_once(url)
-		rescue
-			sleep(6-attempts)
-			attempts -= 1
-		end
-	end
-	raise "Too many attempts failed to get #{url}!"
-end
-
-# download a file, but check in the cache first, also check the sha1
-def download_and_check_sha1(url, sha1)
-
-	FileUtils.mkdir_p AMAHI_DOWNLOAD_CACHE
-	raise SHA1VerificationFailed, "#{url}, sha1sum provided is empty!" unless sha1
-	cached_filename = File.join(AMAHI_DOWNLOAD_CACHE, sha1)
-	if File.exists?(cached_filename)
-		file = nil
-		open cached_filename do |f|
-			file = f.read
-		end
-		new_sha1 = Digest::SHA1.hexdigest(file)
-		if new_sha1 == sha1
-			puts "NOTE: file #{cached_filename} picked up from cache."
-			begin
-				FileUtils.touch cached_filename
-			rescue
-				# touch failed - shh
-			end
-			# return the file name, not the data
-			return cached_filename
-		else
-			puts "WARNING: file #{cached_filename} in cache was found to be corrupted!"
-		end
-	end
-
-	# download if the above fails, i.e. no cached file OR the sha1sum failed!
-	# FIXME: support for mirrors?
-	file = download(url)
-
-	new_sha1 = Digest::SHA1.hexdigest(file)
-	raise SHA1VerificationFailed, "#{url}, '#{new_sha1}' vs. '#{sha1}' " if new_sha1 != sha1
-
-	f = open(cached_filename, "w")
-	f.write file
-	f.close
-	puts "NOTE: file #{cached_filename} written in cache"
-
-	# return the file name, not the data
-	cached_filename
-end
-
 def main
 	(filename, sha1) = parse
 	url = filename
 	url = File.join(DEFAULT_URL, filename) unless filename =~ /^(http:|https:|ftp:)/
-	cached_filename = download_and_check_sha1(url, sha1)
+	cached_filename = Downloader.download_and_check_sha1(url, sha1)
 	local_filename = File.basename((URI::split url)[5])
 	# remove the link first, in case it's a stale link
 	FileUtils.rm_rf(local_filename)
