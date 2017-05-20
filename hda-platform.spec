@@ -13,7 +13,7 @@ License:        AGPL
 Source:         %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires: hda-ctl >= 5.3.0
+Requires: hda-ctl >= 10.0.0
 Requires: ruby(release) >= %{rubyrelease}
 Requires: ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount
