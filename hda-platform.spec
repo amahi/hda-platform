@@ -18,7 +18,8 @@ Requires: ruby(release) >= %{rubyrelease}
 Requires: ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount
 Requires: tar unzip bzip2 wol v8
-Requires: passenger mod_passenger rubygem-rake = 10.4.2
+Requires: passenger mod_passenger rubygem-rake = 12.0.0
+Requires: rubygem(json)
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
