@@ -1,9 +1,9 @@
 # NOTE: also update this in debian/hda-platform.postinst
 %define schema_version    20140717200213
-%define rubyrelease       2.1.6
+%define rubyrelease       2.4.1
 
 Name:           hda-platform
-Version: 10.2.1
+Version: 10.3.0
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -45,7 +45,6 @@ hda-platform is the Amahi web platform.
 %{__mkdir} -p %{buildroot}/etc/httpd/conf.d
 %{__mkdir} -p %{buildroot}/var/hda/domain-settings/netlogon
 %{__mkdir} -p %{buildroot}/var/hda/domain-settings/profiles
-%{__mkdir} -p %{buildroot}/var/lib/samba/drivers
 %{__mkdir} -p %{buildroot}/var/hda/tmp
 %{__cp} -a html %{buildroot}/var/hda/platform/
 %{__rm} -rf %{buildroot}/var/hda/platform/html/TODO.txt
@@ -120,7 +119,6 @@ fi
 %attr(775, apache, users) /var/hda/tmp
 %attr(644, root, root) /var/hda/domain-settings/netlogon/logon.bat
 %attr(775, apache, users) /var/hda/domain-settings/profiles
-/var/lib/samba/drivers
 %{_sbindir}/*
 %{_bindir}/*
 /usr/share/fonts/default/TrueType/*
