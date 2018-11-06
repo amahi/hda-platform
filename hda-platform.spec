@@ -1,9 +1,9 @@
 # NOTE: also update this in debian/hda-platform.postinst
-%define schema_version    20140717200213
+%define schema_version    20180606185129
 %define rubyrelease       2.4.1
 
 Name:           hda-platform
-Version: 10.6.2
+Version: 10.6.50
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -16,7 +16,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: hda-ctl >= 10.0.0
 Requires: ruby(release) >= %{rubyrelease}
 Requires: ruby-libs mlocate
-Requires: httpd hddtemp patch mariadb-server pmount
+Requires: httpd hddtemp patch mariadb-server pmount memcached
 Requires: tar unzip bzip2 wol v8
 Requires: passenger mod_passenger rubygem-rake >= 10.4.2
 Requires: rubygem(json)

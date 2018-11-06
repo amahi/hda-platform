@@ -1,4 +1,4 @@
-VERSION=10.6.2
+VERSION=10.6.50
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
@@ -15,6 +15,9 @@ deb: update-header dist
 
 bundle:
 	(cd html && make bundle)
+
+assets:
+	(cd html && make assets)
 
 dist: bundle clean
 	(mkdir -p html/tmp/cache && cd html/tmp/cache/ && rm -rf *)
@@ -35,9 +38,9 @@ install: rpm
 clean:
 	find . -name '._*' -exec rm '{}' \;
 	# Fedora stores the gems in html/vendor/bundle/ruby/gems
-	(cd html/vendor/bundle/ruby/ && \
-		find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
-		xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
+	#(cd html/vendor/bundle/ruby/ && \
+	#find . -type f -exec grep -l '/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby' {} \; | \
+	#xargs sed -i -e 's|/this/will/be/overwritten/or/wrapped/anyways/do/not/worry/ruby|/usr/bin/ruby|') || true
 	# Ubuntu stores the gems in html/vendor/bundle/ruby/1.9.1/gems
 	# (where 1.9.1 is the ABI version)
 	#(cd html/vendor/bundle/ruby/1.9.1/gems/unicorn-* && \
