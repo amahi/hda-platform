@@ -73,7 +73,9 @@ db = open "| mysql --user #{DB_USER} -p#{DB_PASSWORD} 2>&1", "r+"
 
 if not options[:drop]
 	puts "#{script_name}: creating #{dbname}"
-	db.puts "create database if not exists `#{dbname}`;"
+	db.puts "create database if not exists `#{dbname}`
+		DEFAULT CHARACTER SET utf8
+		DEFAULT COLLATE utf8_general_ci;"
 	db.puts "create user '#{user}'@'#{host}' IDENTIFIED BY '#{user_password}';"
 	db.puts "grant all privileges on `#{dbname}`.* to '#{user}'@'#{host}';"
 	db.puts "quit"
