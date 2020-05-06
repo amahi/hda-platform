@@ -1,9 +1,19 @@
 # NOTE: also update this in debian/hda-platform.postinst
 %define schema_version    20180606185129
-%define rubyrelease       2.4.1
+%define rubyrelease       2.7.1
+
+# https://fedoraproject.org/wiki/Changes/Avoid_usr_bin_python_in_RPM_Build#Python_bytecompilation
+# Enforce python3 because bytecompilation of tornado produced warnings:
+%global __python %{__python3}
+
+# Python permits the !/usr/bin/python shebang for scripts that are cross
+# compatible between python2 and python3, but Fedora 28+ does not.  Fedora
+# wants us to choose python3 for cross-compatible scripts. 
+# We exclude our scripts from Fedora RPM build check, so that we don't get a bunch of build warnings.
+%global __brp_mangle_shebangs_exclude_from generate-darwin-source-and-headers.py|convert-locales.py|htmldiff|ldiff|test.ru
 
 Name:           hda-platform
-Version: 11.0.1
+Version: 11.7.2
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -18,7 +28,7 @@ Requires: ruby(release) >= %{rubyrelease}
 Requires: ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount memcached
 Requires: tar unzip bzip2 wol v8
-Requires: passenger mod_passenger rubygem-rake >= 10.4.2
+Requires: rubygem-rake >= 13.0
 Requires: rubygem(json)
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -54,6 +64,8 @@ hda-platform is the Amahi web platform.
 %{__install} -p hda-gems-install %{buildroot}%{_sbindir}
 %{__install} -p hda-diskmount %{buildroot}%{_sbindir}
 %{__install} -p hda-add-apache-sudoers %{buildroot}%{_sbindir}
+%{__install} -D -m 0644 -p hda-platform.service %{buildroot}%{_unitdir}/hda-platform.service
+%{__install} -D -m 0644 -p httpd.conf %{buildroot}/etc/httpd/conf.d/01-platform.conf
 
 # pdc logon script
 %{__install} -m 644 -p pdc/logon.bat %{buildroot}/var/hda/domain-settings/netlogon
@@ -94,7 +106,10 @@ touch /var/hda/platform/html/log/development.log
 # for debugability down the road
 test ! -f /var/log/messages || /bin/chmod 644 /var/log/messages
 
+%systemd_post hda-platform.service
+
 %preun
+%systemd_preun hda-platform.service
 
 if [ "$1" = 0 ]; then
     # not an update, a complete uninstall
@@ -106,6 +121,9 @@ else
     (/sbin/service smb reload || true) &> /dev/null
     (/sbin/service nmb reload || true) &> /dev/null
 fi
+
+%postun
+%systemd_postun_with_restart hda-platform.service
 
 %files
 %defattr(-,root,root,-)
@@ -124,9 +142,10 @@ fi
 /usr/share/fonts/default/TrueType/*
 %{_datadir}/%{name}
 %config(noreplace) /var/hda/platform/html/config/*.yml
-%config(noreplace) /var/hda/platform/html/log/*.log
+%ghost /var/hda/platform/html/log/*.log
 %attr(-, apache, apache) /var/hda/platform/html/
-%attr(-, apache, apache) /var/hda/platform/logs/
+%attr(0644,root,root) %{_unitdir}/hda-platform.service
+%attr(0644,root,root) /etc/httpd/conf.d/01-platform.conf
 
 %changelog
 * Sat Jan 26 2013 carlos puchol

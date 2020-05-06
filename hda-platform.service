@@ -1,0 +1,22 @@
+[Unit]
+Description=Amahi Platform Server
+After=network.target
+
+[Service]
+# Foreground process (do not use --daemon in ExecStart or config.rb)
+Type=simple
+User=apache
+
+WorkingDirectory=/var/hda/platform/html
+
+# Environment=PUMA_DEBUG=1
+
+# SystemD will not run puma even if it is in your path. You must specify
+# an absolute URL to puma. For example /usr/local/bin/puma
+# Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
+ExecStart=/var/hda/platform/html/bin/puma -e production -b tcp://0.0.0.0:9292
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
