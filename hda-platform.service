@@ -14,9 +14,15 @@ WorkingDirectory=/var/hda/platform/html
 # SystemD will not run puma even if it is in your path. You must specify
 # an absolute URL to puma. For example /usr/local/bin/puma
 # Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
-ExecStart=/var/hda/platform/html/bin/puma -e production -b tcp://0.0.0.0:9292
+ExecStart=/var/hda/platform/html/bin/puma -e production -b tcp://127.0.0.1:9292 -C config/puma.rb
 
+ExecReload=/bin/kill -USR1 $MAINPID
+ExecRestart=/bin/kill -USR2 $MAINPID
 Restart=always
+KillMode=mixed
+# NOTE-cpg: for when integration with systemd is ready via gem 'puma-plugin-systemd'
+#WatchdogSec=30
 
 [Install]
 WantedBy=multi-user.target
+

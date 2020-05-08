@@ -13,7 +13,7 @@
 %global __brp_mangle_shebangs_exclude_from generate-darwin-source-and-headers.py|convert-locales.py|htmldiff|ldiff|test.ru
 
 Name:           hda-platform
-Version: 11.7.2
+Version: 11.7.11
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -101,10 +101,11 @@ if [[ -e /var/cache/hda-ctl.cache ]]; then
 fi
 
 touch /var/hda/platform/html/log/production.log
-touch /var/hda/platform/html/log/development.log
 
 # for debugability down the road
 test ! -f /var/log/messages || /bin/chmod 644 /var/log/messages
+
+systemctl daemon-reload
 
 %systemd_post hda-platform.service
 
@@ -142,6 +143,7 @@ fi
 /usr/share/fonts/default/TrueType/*
 %{_datadir}/%{name}
 %config(noreplace) /var/hda/platform/html/config/*.yml
+%dir /var/hda/platform/html/log
 %ghost /var/hda/platform/html/log/*.log
 %attr(-, apache, apache) /var/hda/platform/html/
 %attr(0644,root,root) %{_unitdir}/hda-platform.service
