@@ -10,10 +10,10 @@
 # compatible between python2 and python3, but Fedora 28+ does not.  Fedora
 # wants us to choose python3 for cross-compatible scripts. 
 # We exclude our scripts from Fedora RPM build check, so that we don't get a bunch of build warnings.
-%global __brp_mangle_shebangs_exclude_from generate-darwin-source-and-headers.py|convert-locales.py|htmldiff|ldiff|test.ru
+%global __brp_mangle_shebangs_exclude_from generate-darwin-source-and-headers.py|convert-locales.py|htmldiff|ldiff|test.ru|gyp|.coffee
 
 Name:           hda-platform
-Version: 11.7.14
+Version: 11.8.2
 Release:        1
 
 Summary:        hda-platform is the Amahi web interface platform.
@@ -27,7 +27,7 @@ Requires: hda-ctl >= 10.0.0
 Requires: ruby(release) >= %{rubyrelease}
 Requires: ruby-libs mlocate
 Requires: httpd hddtemp patch mariadb-server pmount memcached
-Requires: tar unzip bzip2 wol v8
+Requires: tar unzip bzip2 wol v8 chkconfig
 Requires: rubygem-rake >= 13.0
 Requires: rubygem(json)
 BuildRequires: ruby-devel gcc-c++ rubygem(bundler) mariadb-devel sqlite-devel
@@ -101,6 +101,7 @@ if [[ -e /var/cache/hda-ctl.cache ]]; then
 fi
 
 touch /var/hda/platform/html/log/production.log
+chown apache:apache /var/hda/platform/html/log/production.log
 
 # for debugability down the road
 test ! -f /var/log/messages || /bin/chmod 644 /var/log/messages

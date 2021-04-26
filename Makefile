@@ -1,4 +1,5 @@
-VERSION=11.7.14
+VERSION=11.8.2
+
 RPMBASE=$(HOME)/rpmbuild
 
 all: rpm
@@ -19,11 +20,11 @@ bundle:
 assets:
 	(cd html && make assets)
 
-dist: bundle clean
+dist: bundle clean assets
 	(mkdir -p html/tmp/cache && cd html/tmp/cache/ && rm -rf *)
 	(mkdir -p release && cd release && mkdir -p hda-platform-$(VERSION))
 	(mkdir -p html/log && cd html/log && echo -n > production.log && echo -n > development.log && echo -n > test.log)
-	rsync -a --exclude=.git debian pdc hda-usermap hda-gems-install hda-platform.spec hda-create-db-and-user html fonts \
+	rsync -a --exclude=.git --exclude=libsass.spec debian pdc hda-usermap hda-gems-install hda-platform.spec hda-create-db-and-user html fonts \
 		hda-refresh-shares webapps hda-diskmount amahi-download hda-platform.service \
 		httpd.conf hda-add-apache-sudoers release/hda-platform-$(VERSION)/
 	(cd release && tar -czvf hda-platform-$(VERSION).tar.gz hda-platform-$(VERSION))
